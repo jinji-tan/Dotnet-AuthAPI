@@ -1,0 +1,44 @@
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'Auth')
+BEGIN
+    EXEC('CREATE SCHEMA Auth');
+END
+GO
+
+CREATE TABLE Auth.Users (
+    UserId INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    Active BIT DEFAULT 1,
+    CreatedDate DATETIME DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE Auth.Credentials (
+    UserId INT PRIMARY KEY,
+    PasswordHash VARBINARY(MAX) NOT NULL,
+    PasswordSalt VARBINARY(MAX) NOT NULL,
+    CONSTRAINT FK_Credentials_Users FOREIGN KEY (UserId) REFERENCES Auth.Users(UserId) ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE Auth.Posts (
+    PostId INT IDENTITY(1,1) PRIMARY KEY,
+    UserId INT NOT NULL,
+    PostContent NVARCHAR(MAX) NOT NULL,
+    PostCreated DATETIME DEFAULT GETDATE(),
+    PostUpdated DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Posts_Users FOREIGN KEY (UserId) REFERENCES Auth.Users(UserId) ON DELETE CASCADE
+);
+GO
+
+CREATE TABLE Auth.Comments (
+    CommentId INT IDENTITY(1,1) PRIMARY KEY,
+    PostId INT NOT NULL,
+    UserId INT NOT NULL,
+    CommentContent NVARCHAR(MAX) NOT NULL,
+    CommentCreated DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Comments_Posts FOREIGN KEY (PostId) REFERENCES Auth.Posts(PostId),
+    CONSTRAINT FK_Comments_Users FOREIGN KEY (UserId) REFERENCES Auth.Users(UserId)
+);
+GO
