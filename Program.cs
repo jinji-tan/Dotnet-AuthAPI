@@ -1,3 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,9 +25,31 @@ builder.Services.AddCors((options) =>
     options.AddPolicy("ProdCors", (corsBuilder) =>
     {
         corsBuilder.WithOrigins("https://example.com")
-        .AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
 });
+
+string? tokenKeyString = builder.Configuration.GetSection("AppSettings:TokenKey").Value;
+
+SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(tokenKeyString ?? "")
+);
+
+TokenValidationParameters tokenValidationParameters = new TokenValidationParameters()
+{
+    IssuerSigningKey = tokenKey,
+    ValidateIssuer = false,
+    ValidateIssuerSigningKey = true,
+    ValidateAudience = false
+};
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = tokenValidationParameters;
+    });
 
 
 var app = builder.Build();
@@ -40,5 +66,10 @@ else
     app.UseCors("ProdCors");
     app.UseHttpsRedirection();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
