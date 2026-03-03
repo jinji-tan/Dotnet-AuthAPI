@@ -131,7 +131,8 @@ namespace AuthAPI.Controllers
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken token = tokenHandler.CreateToken(descriptor);
 
-            return tokenHandler.WriteToken(token);
+            return tokenHandler.WriteToken(token); 
+            
         }
     }
 }

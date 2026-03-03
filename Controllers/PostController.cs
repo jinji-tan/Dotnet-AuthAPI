@@ -30,7 +30,6 @@ namespace AuthAPI.Controllers
         [HttpPost("Create")]
         public IActionResult CreatePost([FromBody] string postContent)
         {
-            // Extract the UserId from the JWT Token claims
             int userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
 
             if (userId == 0) return Unauthorized();
@@ -43,15 +42,13 @@ namespace AuthAPI.Controllers
 
             try
             {
-                // Use LoadDataSingleWithParameters to grab the PostId returned by SCOPE_IDENTITY()
                 int newPostId = _dapper.LoadDataSingleWithParameters<int>(sql, sqlParameters);
 
-                // Return a 200 OK with the new ID
+
                 return Ok(new { Message = "Post created successfully!", PostId = newPostId });
             }
             catch (Exception)
             {
-                // If SQL actually fails, we will catch it here
                 return BadRequest("Failed to create post.");
             }
         }

@@ -26,7 +26,6 @@ namespace AuthAPI.Controllers
 
             string sql = "EXEC Auth.usp_GetComments @PostId";
 
-            // Note: You might want to create a CommentDisplayDto to handle the AuthorName returned by SQL
             var comments = _dapper.LoadDataWithParameters<dynamic>(sql, sqlParameters);
             return Ok(comments);
         }
@@ -47,7 +46,6 @@ namespace AuthAPI.Controllers
 
             try
             {
-                // Just execute it! If it fails, SQL will throw an error and jump to the catch block.
                 _dapper.ExecuteSqlWithParameters(sql, sqlParameters);
 
                 return Ok("Comment added successfully!");
